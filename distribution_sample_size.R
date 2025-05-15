@@ -4,7 +4,7 @@ library(purrr)
 library(stringr)
 #
 
-fam <- read.table("italy_1/wd_italy_1.fam", header = FALSE)
+fam <- read.table("greece/greek.fam", header = FALSE)
 colnames(fam) <- c("PID", "IID", "FID", "MID", "sex", "pheno")
 
 original_signature_list <- c("ET_ABR", "CH_ALP", "IT_ALP", "FR_ALP", "MW_BAW", "IT_BIO",
@@ -12,7 +12,8 @@ original_signature_list <- c("ET_ABR", "CH_ALP", "IT_ALP", "FR_ALP", "MW_BAW", "
                              "ET_KEF", "MW_LGW", "DK_LNR", "FI_LNR", "NL_LNR", "MG_MEN",
                              "ML_NAI", "EG_NBN", "MW_NSJ", "IE_OIG", "IT_ORO", "TZ_PRW",
                              "FR_PTV", "CH_SAA", "TZ_SNJ", "MG_SOF", "IT_VAL", "IT_VSS",
-                             "NG_WAD", "CM_WAD", "ET_WYG", "GIR", "ORO")
+                             "NG_WAD", "CM_WAD", "ET_WYG", "GIR", "ORO", "Iberian_ibex", 
+                             "Cretan_wild", "Nubian_ibex", "Markhor", "GIR", "Skopelos")
 
 fam <- fam %>%
   group_by(PID) %>%
@@ -30,7 +31,7 @@ ggplot(fam, aes(x = PID, y = Count, fill = Label)) +
   theme_minimal() +
   xlab("Population ID") +
   ylab("Sample size") +
-  theme(axis.text.x = element_text(angle = 90, vjust = -0.5, size = 12))
+  theme(axis.text.x = element_text(angle = 0, vjust = -0.5, size = 12))
 
 
 ###########################################"
@@ -46,38 +47,36 @@ ggplot(fam, aes(x = PID, y = Count, fill = Label)) +
 fam <- read.table("algeria/algeria.fam", header = FALSE)
 colnames(fam) <- c("PID", "IID", "FID", "MID", "sex", "pheno")
 
-original_signature_list <- c("Iberian_ibex", "Cretan_wild", "Nubian_ibex", "Markhor")
+original_signature_list <- c("AR")
 
 fam <- fam %>%
-  group_by(PID_new) %>%
-  summarise(Count = n())
-
-fam <- fam %>%
-  mutate(Label = ifelse(PID_new %in% original_signature_list, "Original", "Other"))
-
-#Edit it a bit
-
-library(dplyr)
-
-df <- df %>%
   mutate(
     PID_group = case_when(
       grepl("^MZ", PID) ~ "MZ",
       grepl("^AR", PID) ~ "AR",
-      grepl("^FR", PID) ~ "FR",
+      grepl("^NK", PID) ~ "NK",
+      grepl("^MK", PID) ~ "MK",
       TRUE ~ PID  # Keep the original if no match
     )
   )
-#end of edit
 
-ggplot(fam, aes(x = PID_new, y = Count, fill = Label)) +
+fam <- fam %>%
+  group_by(PID_group) %>%
+  summarise(Count = n())
+
+fam <- fam %>%
+  mutate(Label = ifelse(PID_group %in% original_signature_list, "Original", "Other"))
+
+
+ggplot(fam, aes(x = PID_group, y = Count, fill = Label)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = Count), vjust = -1, size = 4) +
   scale_fill_manual(values = c("Original" = "darksalmon", "Other" = "aquamarine3")) +
   theme_minimal() +
   xlab("Population ID") +
   ylab("Sample size") +
-  theme(axis.text.x = element_text(angle = 90, vjust = -0.5, size = 12))
+  theme(axis.text.x = element_text(angle = 0, vjust = -0.5, size = 12))
+  
 
 # Angora - Note that you must use the **wd_file**
 
@@ -86,7 +85,7 @@ ggplot(fam, aes(x = PID_new, y = Count, fill = Label)) +
 # Adaptmap
 
 
-fam <- read.table("adaptmap/ADAPTmap_genotypeTOP_20160222_full.fam", header = FALSE)
+fam <- read.table("adaptmap/wd_adaptmap.fam", header = FALSE)
 colnames(fam) <- c("PID", "IID", "FID", "MID", "sex", "pheno")
 
 original_signature_list <- c("ET_ABR", "CH_ALP", "IT_ALP", "FR_ALP", "MW_BAW", "IT_BIO",
