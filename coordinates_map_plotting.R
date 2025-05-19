@@ -1,21 +1,28 @@
-library(readr)
-library(ggplot2)
+
 library(ggmap)
+library(ggplot2)
+library(readr)
+library(dplyr)
 
-# Load clean CSV
-df <- read_csv("Desktop/PFE/coordinates.csv")
-colnames(df) <- c("V1", "lat", "long")
 
-# Convert lat/lon (if needed)
-df$Latitude <- as.numeric(df$lat)
-df$Longitude <- as.numeric(df$Longitude)
+register_stadiamaps("24dcfc0f-ebaf-4583-bfbc-c87c571ce15b", write = TRUE)
+coords <- read_csv("PFE/coordinates.csv")
 
-# Register your Google Maps API key
-register_google(key = "YOUR_GOOGLE_API_KEY")
 
-# Plot on a base map
-map <- get_map(location = c(lon = mean(df$Longitude), lat = mean(df$Latitude)), zoom = 5)
+# Define bounding box based on your data
+bbox <- c(
+  left = min(coords$Longitude) - 5,
+  bottom = min(coords$Latitude) - 5,
+  right = max(coords$Longitude) + 5,
+  top = max(coords$Latitude) + 5
+)
 
-ggmap(map) +
-  geom_point(data = df, aes(x = Longitude, y = Latitude, color = `Label Name - Code`), size = 3) +
-  theme_minimal()
+world_map <- get_stadiamap(bbox, zoom = 4, maptype = "alidade_smooth") #alidade_smooth
+
+ggmap(world_map) +
+  geom_point(data = coords, aes(x = Longitude, y = Latitude, color = Label), size = 2) +
+  theme_minimal() +
+  labs(title = "Geographic Distribution of Goat Populations",
+       x = "Longitude", y = "Latitude", color = "Breed Label") +
+  guides(color = guide_legend(ncol = 5))
+
